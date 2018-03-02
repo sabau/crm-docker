@@ -20,15 +20,31 @@ choco install -y docker-machine-vmwareworkstation
 Once you specify the environemtn from start.bat, that value must flow until docker-compose env file and replace both the names of nginx and node hostname and the folder they munt for the plugins, lucklily they have all the same name!
 
 ### first time
+
 docker-machine create -d vmwareworkstation default
+
 docker-machine start | iex
 
 ### everyday
+
 docker-machine start
+
 docker-machine start | iex
 
 ## Usage
 
-start.bat
-docker-compose up
+### Linux
 
+start.sh
+
+docker-compose rm --all && docker-compose pull && docker-compose build --no-cache && docker-compose up -d --force-recreate
+
+### Windows 
+
+start.bat
+
+docker-compose rm --all ; docker-compose pull ; docker-compose build --no-cache ; docker-compose up -d --force-recreate
+
+### Default
+
+docker-compose up
