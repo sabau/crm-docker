@@ -1,9 +1,8 @@
-version: '3.0'
+version: '3.3'
 services:
   proxy:
     build: ./nginx/
     hostname: ${TBCLIENT:-dafne-it}
-    domainname: ${TBCLIENT:-dafne-it}.dev
     ports:
       - 80:80
     container_name: proxy
@@ -13,20 +12,16 @@ services:
       - node
     volumes:
       - crm
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
   app:
     image: node:carbon
     container_name: app
     volumes:
-      - .:/app
-      - crm:/app
+      - /mnt/hgfs/A/experiments/fromwin/:/home/node/app
+      - crm:/home/node/app
 
   node:
     build: ./node/
     hostname: ${TBCLIENT:-dafne-it}.node
-    domainname: ${TBCLIENT:-dafne-it}.node.dev
     container_name: node
     depends_on:
       - app

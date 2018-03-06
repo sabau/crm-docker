@@ -1,0 +1,20 @@
+{
+    "paths": {
+        "site": "..\\crm-40\\out\\debug",
+        "modules": "..\\crm-40-modules\\out\\debug",
+        "config": "..\\TBCLIENT\\config",
+        "plugins": "..\\TBCLIENT\\out\\debug",
+        "attachments": "..\\attachments",
+        "versions": "..\\versions"
+    },
+    "database": {
+        "domain": null,
+        "user": "sa",
+        "password": "Telemaco1",
+        "server": "192.168.101.39\\SQL2K1201",
+        "port": 1433,
+        "database": "DICOFARM_IT_DEVTBCRM",
+        "connectionTimeout": 10000,
+        "requestTimeout": 60000
+    }
+}
