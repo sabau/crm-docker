@@ -50,9 +50,9 @@ IF NOT EXIST %DRIVE%%DIR%\%CODE% (
   echo "OK plugins"
 )
 
-call nvm install 8.9.3
-call nvm use 8.9.3
-start /separate /wait cmd /c "git pull && npm install -g gulp gulp-cli" &
+call nvm install 8.9.4
+call nvm use 8.9.4
+start /separate /wait cmd /c "npm install -g gulp gulp-cli" &
 
 cd crm-40
 echo "install and build CRM 40"
