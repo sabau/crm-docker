@@ -7,78 +7,85 @@ set /p CODE="client code (DEFAULT: dafne-it ...):"
 IF NOT DEFINED CODE SET CODE="dafne-it"
 IF %CODE%=="" SET CODE="dafne-it"
 
-IF NOT DEFINED DRIVE SET DRIVE=%CD%
-IF %DRIVE%=="" SET DRIVE=%CD%
+IF NOT DEFINED DRIVE SET DRIVE=%~d0
+IF %DRIVE%=="" SET DRIVE=%~d0
 
 IF NOT DEFINED DIR SET DIR=%~p0
 IF %DIR%=="" SET DIR=%~p0
+echo %DRIVE%%DIR%
+IF NOT EXIST %DRIVE%%DIR% GOTO NOWINDIR
 
-IF NOT EXIST %DRIVE%:\%DIR% GOTO NOWINDIR
-
-echo /%DRIVE% %DIR%
-%DRIVE%:
+echo %DRIVE%%DIR%
+%DRIVE%
 cd %DIR%
 
-IF NOT EXIST %DRIVE%:\%DIR%\attachments mkdir attachments
-IF NOT EXIST %DRIVE%:\%DIR%\versions mkdir versions
+IF NOT EXIST %DRIVE%%DIR%\attachments mkdir attachments
+IF NOT EXIST %DRIVE%%DIR%\versions mkdir versions
 
-IF NOT EXIST %DRIVE%:\%DIR%\crm-40 (
+IF NOT EXIST %DRIVE%%DIR%\crm-40 (
   echo "Cloning crm-40"
   git clone http://devlab.trueblue.it/tbcrm-40/crm-40.git
+  echo "Installing and building crm-40"
+  start /separate /wait cmd /c "git pull && npm install && npm run build" &
 ) ELSE (
   echo "OK crm-40"
 )
 
-IF NOT EXIST %DRIVE%:\%DIR%\node-api (
+IF NOT EXIST %DRIVE%%DIR%\node-api (
   echo "Cloning node-api"
   git clone http://devlab.trueblue.it/tbcrm-40/node-api.git
+  echo "Installing node-api"
+  start /separate /wait cmd /c "git pull && npm install" &
 ) ELSE (
   echo "OK node-api"
 )
 
-IF NOT EXIST %DRIVE%:\%DIR%\crm-40-modules (
+IF NOT EXIST %DRIVE%%DIR%\crm-40-modules (
   echo "Cloning crm-40-modules"
   git clone http://devlab.trueblue.it/tbcrm-40/crm-40-modules.git
+  echo "Installing and building crm-40-modules"
+  start /separate /wait cmd /c "git pull && npm install && npm run build" &
 ) ELSE (
   echo "OK modules"
 )
 
-IF NOT EXIST %DRIVE%:\%DIR%\%CODE% (
-  echo "Cloning plugins"
+IF NOT EXIST %DRIVE%%DIR%\%CODE% (
+  echo "Cloning and building plugins"
   git clone http://devlab.trueblue.it/tbcrm-40/%CODE%.git
+  echo "Installing and building plugins"
+  start /separate /wait cmd /c "git pull && npm install && build build" &
 ) ELSE (
   echo "OK plugins"
 )
 
-docker-machine --native-ssh create -d vmwareworkstation default
+:: we need that check working
+:: docker-machine ls | find /i "default"
+::IF %ERRORLEVEL% NEQ 0 (
+  :: here I suggest making a link to the .docker folder pointing to a different hard disk, to avoid fill C: with shit
+  docker-machine --native-ssh create -d vmwareworkstation default
+  :: sorry I have not time to fix vmx file for every docker version
+  :: you have shut it down, edit A:\docker\machine\machines\default\default.vmx
+  :: sharedFolder0.present = "true"
+  :: sharedFolder0.enabled = "true"
+  :: sharedFolder0.readAccess = "true"
+  :: sharedFolder0.writeAccess = "true"
+  :: sharedFolder0.hostPath = "C:\Users\"
+  :: sharedFolder0.guestName = "Users"
+  :: sharedFolder0.expiration = "never"
+  :: sharedFolder1.present = "true"
+  :: sharedFolder1.enabled = "true"
+  :: sharedFolder1.readAccess = "true"
+  :: sharedFolder1.writeAccess = "true"
+  :: sharedFolder1.hostPath = "A:\"
+  :: sharedFolder1.guestName = "TB"
+  :: sharedFolder1.expiration = "never"
+  :: sharedFolder.maxNum = "2"
+:: )
 docker-machine start
-docker-machine env | iex
-
-
-
-call nvm install 8.9.4
-call nvm use 8.9.4
-start /separate /wait cmd /c "git pull && npm install -g gulp gulp-cli" &
-
-cd crm-40
-echo "install and build CRM 40"
-start /separate /wait cmd /c "git pull && npm install && npm run build" &
-cd ..
-
-cd crm-40-modules
-echo "install and build modules"
-start /separate /wait cmd /c "git pull && npm install && npm run build" &
-cd ..
-
-cd %CODE%
-echo "install and build plugin"
-start /separate /wait cmd /c "git pull && npm install && npm run build" &
-cd ..
-
-cd node-api
-echo "install and run API"
-start /separate /wait cmd /c "git pull && npm install && npm run dev" &
-cd ..
-
+FOR /f "tokens=*" %%i IN ('docker-machine env default') DO %%i
+:: docker-machine env | iex
+:: docker-compose rm --all && docker-compose pull &&
+docker-compose build --no-cache
+docker-compose up
 
 :NOWINDIR

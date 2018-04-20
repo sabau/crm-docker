@@ -1,6 +1,0 @@
-"site": "..\\crm-40\\out\\debug",
-"modules": "..\\crm-40-modules\\out\\debug",
-"config": "..\\scilla-it\\config",
-"plugins": "..\\scilla-it\\out\\debug",
-"attachments": "..\\attachments",
-"versions": "..\\versions"
